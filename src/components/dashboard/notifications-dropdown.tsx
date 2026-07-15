@@ -21,7 +21,7 @@ export function NotificationsDropdown() {
       const res = await getNotificationsAction();
       if (res.success) {
         setNotifications(res.notifications);
-        setUnreadCount(res.unreadCount);
+        setUnreadCount(res.unreadCount ?? 0);
       }
     } catch (err) {
       console.error("Failed to load notifications", err);

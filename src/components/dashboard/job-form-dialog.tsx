@@ -37,7 +37,7 @@ export function JobFormDialog({ isOpen, onClose, jobToEdit }: JobFormDialogProps
     reset,
     formState: { errors },
   } = useForm<JobInput>({
-    resolver: zodResolver(jobSchema),
+    resolver: zodResolver(jobSchema) as any,
     defaultValues: {
       title: "",
       department: "",

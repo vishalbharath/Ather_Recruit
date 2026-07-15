@@ -49,8 +49,9 @@ export function PipelineBoard({ job, initialApplications }: PipelineBoardProps) 
     };
 
     applications.forEach((app) => {
-      if (groups[app.status]) {
-        groups[app.status].push(app);
+      const status = app.status as ApplicationStatus;
+      if (groups[status]) {
+        groups[status].push(app);
       }
     });
 
@@ -180,8 +181,8 @@ export function PipelineBoard({ job, initialApplications }: PipelineBoardProps) 
                           key={app.id}
                           layoutId={app.id}
                           draggable
-                          onDragStart={(e) => handleDragStart(e, app.id)}
-                          onDragEnd={handleDragEnd}
+                          onDragStart={(e: any) => handleDragStart(e, app.id)}
+                          onDragEnd={handleDragEnd as any}
                           onClick={() => handleCardClick(app)}
                           className={cn(
                             "relative overflow-hidden rounded-lg border border-border bg-card p-3.5 hover:border-primary/50 transition-all cursor-grab active:cursor-grabbing shadow-sm flex flex-col gap-2.5 hover:shadow-md",

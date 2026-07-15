@@ -27,7 +27,7 @@ export function InterviewFormDialog({ isOpen, onClose, candidates, teamMembers }
     reset,
     formState: { errors },
   } = useForm<InterviewInput>({
-    resolver: zodResolver(interviewSchema),
+    resolver: zodResolver(interviewSchema) as any,
     defaultValues: {
       applicationId: "",
       title: "",

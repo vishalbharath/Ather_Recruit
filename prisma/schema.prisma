@@ -88,6 +88,7 @@ model User {
   email         String       @unique
   name          String
   avatarUrl     String?
+  metadata      Json?        @default("{}")
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
 

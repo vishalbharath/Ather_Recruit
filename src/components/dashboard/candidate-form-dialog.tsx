@@ -35,7 +35,7 @@ export function CandidateFormDialog({ isOpen, onClose, jobs, candidateToEdit }: 
     reset,
     formState: { errors },
   } = useForm<CandidateInput>({
-    resolver: zodResolver(candidateSchema),
+    resolver: zodResolver(candidateSchema) as any,
     defaultValues: {
       name: "",
       email: "",

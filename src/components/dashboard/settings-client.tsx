@@ -54,7 +54,7 @@ export function SettingsClient({ user, organization, role }: SettingsClientProps
 
   // Forms setup
   const profileForm = useForm<ProfileSettingsInput>({
-    resolver: zodResolver(profileSettingsSchema),
+    resolver: zodResolver(profileSettingsSchema) as any,
     defaultValues: {
       name: user.name,
       phone: "",
@@ -62,7 +62,7 @@ export function SettingsClient({ user, organization, role }: SettingsClientProps
   });
 
   const orgForm = useForm<OrgSettingsInput>({
-    resolver: zodResolver(orgSettingsSchema),
+    resolver: zodResolver(orgSettingsSchema) as any,
     defaultValues: {
       name: organization.name,
     },
@@ -70,7 +70,7 @@ export function SettingsClient({ user, organization, role }: SettingsClientProps
 
   const savedPref = user.metadata?.notificationPreferences || {};
   const notifyForm = useForm<NotificationPreferencesInput>({
-    resolver: zodResolver(notificationPreferencesSchema),
+    resolver: zodResolver(notificationPreferencesSchema) as any,
     defaultValues: {
       emailDigest: savedPref.emailDigest ?? true,
       interviewReminders: savedPref.interviewReminders ?? true,
