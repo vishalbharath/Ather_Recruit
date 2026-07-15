@@ -1,35 +1,102 @@
 import * as React from "react";
-import { Calendar, CalendarPlus } from "lucide-react";
+import prisma from "@/lib/prisma";
+import { getActiveWorkspace } from "@/lib/roles";
+import { redirect } from "next/navigation";
+import { InterviewsClient } from "@/components/dashboard/interviews-client";
 
-export default function InterviewsPage() {
+export const dynamic = "force-dynamic";
+
+export default async function InterviewsPage() {
+  const workspace = await getActiveWorkspace();
+  if (!workspace) {
+    redirect("/sign-in");
+  }
+
+  const { organization } = workspace;
+
+  // Query interviews scoped to active organization
+  const interviews = await prisma.interview.findMany({
+    where: {
+      application: {
+        job: {
+          organizationId: organization.id,
+        },
+      },
+    },
+    orderBy: {
+      scheduledAt: "asc",
+    },
+    include: {
+      application: {
+        include: {
+          candidate: true,
+          job: true,
+        },
+      },
+      interviewers: {
+        include: {
+          user: true,
+        },
+      },
+    },
+  });
+
+  // Query candidate options (exclude Hired/Rejected for scheduling simplicity)
+  const applications = await prisma.application.findMany({
+    where: {
+      job: {
+        organizationId: organization.id,
+      },
+      status: {
+        notIn: ["HIRED", "REJECTED"],
+      },
+    },
+    select: {
+      id: true,
+      candidate: {
+        select: {
+          name: true,
+        },
+      },
+      job: {
+        select: {
+          title: true,
+        },
+      },
+    },
+  });
+
+  const candidatesPayload = applications.map((app) => ({
+    id: app.id,
+    name: app.candidate.name,
+    jobTitle: app.job.title,
+  }));
+
+  // Query team members in organization to assign as interviewers
+  const memberships = await prisma.membership.findMany({
+    where: {
+      organizationId: organization.id,
+    },
+    select: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
+  });
+
+  const teamMembersPayload = memberships.map((m) => ({
+    id: m.user.id,
+    name: m.user.name,
+  }));
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight text-foreground font-display">
-            Interview Schedule
-          </h2>
-          <p className="text-muted-foreground text-sm">
-            Coordinate interviewer sync slots and calendar bookings.
-          </p>
-        </div>
-        <button
-          className="inline-flex h-9 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/95 transition-colors gap-2 cursor-pointer"
-          disabled
-        >
-          <CalendarPlus className="h-4 w-4" /> Book Slot
-        </button>
-      </div>
-
-      <div className="rounded-xl border border-border bg-card p-8 text-center border-dashed">
-        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 border border-primary/20 text-primary mx-auto">
-          <Calendar className="h-6 w-6" />
-        </div>
-        <h3 className="mt-4 text-sm font-semibold text-foreground">No interviews scheduled</h3>
-        <p className="mt-2 text-xs text-muted-foreground max-w-sm mx-auto">
-          Your interview calendar is clean. Open the job details pipeline screen to schedule screenings with applicant matches.
-        </p>
-      </div>
-    </div>
+    <InterviewsClient
+      initialInterviews={interviews}
+      candidates={candidatesPayload}
+      teamMembers={teamMembersPayload}
+    />
   );
 }
