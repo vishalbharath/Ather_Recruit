@@ -5,6 +5,11 @@ import { SettingsClient } from "@/components/dashboard/settings-client";
 
 export const dynamic = "force-dynamic";
 
+export const metadata = {
+  title: "Workspace Settings | Aether Recruiter Workspace",
+  description: "Configure billing details, set notification checkbox parameters, and view active sessions API keys.",
+};
+
 export default async function SettingsPage() {
   const workspace = await getActiveWorkspace();
   if (!workspace) {

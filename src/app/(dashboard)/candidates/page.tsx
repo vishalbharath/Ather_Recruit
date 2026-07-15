@@ -7,6 +7,11 @@ import { JobStatus } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
 
+export const metadata = {
+  title: "Candidates Directory | Aether Recruiter Workspace",
+  description: "Browse applicant portfolios, review interviewer evaluation scorecards, and timeline note threads.",
+};
+
 export default async function CandidatesPage() {
   const workspace = await getActiveWorkspace();
   if (!workspace) {

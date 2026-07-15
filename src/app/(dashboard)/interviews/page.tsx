@@ -6,6 +6,11 @@ import { InterviewsClient } from "@/components/dashboard/interviews-client";
 
 export const dynamic = "force-dynamic";
 
+export const metadata = {
+  title: "Interview Schedule Calendar | Aether Recruiter Workspace",
+  description: "Coordinate mock screening rounds, schedule panel interviews, and assign team managers.",
+};
+
 export default async function InterviewsPage() {
   const workspace = await getActiveWorkspace();
   if (!workspace) {

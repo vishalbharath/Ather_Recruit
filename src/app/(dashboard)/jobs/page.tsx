@@ -6,6 +6,11 @@ import { JobsClient } from "@/components/dashboard/jobs-client";
 
 export const dynamic = "force-dynamic";
 
+export const metadata = {
+  title: "Job Listings | Aether Recruiter Workspace",
+  description: "Create, edit, and audit active or archived job postings and applicant listings.",
+};
+
 export default async function JobsPage() {
   const workspace = await getActiveWorkspace();
   if (!workspace) {
