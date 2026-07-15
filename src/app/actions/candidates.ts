@@ -26,52 +26,57 @@ export async function createCandidateAction(input: CandidateInput) {
     throw new Error(`Candidate with email ${data.email} already exists in your workspace.`);
   }
 
-  // Create Candidate
-  const candidate = await prisma.candidate.create({
-    data: {
-      organizationId: organization.id,
-      name: data.name,
-      email: data.email,
-      phone: data.phone,
-      resumeUrl: data.resumeUrl,
-      portfolioUrl: data.portfolioUrl,
-      linkedinUrl: data.linkedinUrl,
-      metadata: {
-        skills: data.skills.split(",").map((s) => s.trim()).filter(Boolean),
-        experience: data.experience,
-        rating: data.rating,
-      },
-    },
-  });
-
-  // Create Application
-  const application = await prisma.application.create({
-    data: {
-      jobId: data.jobId,
-      candidateId: candidate.id,
-      status: data.status,
-    },
-  });
-
-  // Create initial Note if provided
-  if (data.initialNote) {
-    await prisma.candidateNote.create({
+  // Create Candidate and related records atomically inside a transaction
+  const candidate = await prisma.$transaction(async (tx) => {
+    // Create Candidate
+    const cand = await tx.candidate.create({
       data: {
-        applicationId: application.id,
-        userId: user.id,
-        content: data.initialNote,
+        organizationId: organization.id,
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        resumeUrl: data.resumeUrl,
+        portfolioUrl: data.portfolioUrl,
+        linkedinUrl: data.linkedinUrl,
+        metadata: {
+          skills: data.skills.split(",").map((s) => s.trim()).filter(Boolean),
+          experience: data.experience,
+          rating: data.rating,
+        },
       },
     });
-  }
 
-  // Log Activity
-  await prisma.activityLog.create({
-    data: {
-      organizationId: organization.id,
-      userId: user.id,
-      action: "CANDIDATE_CREATED",
-      details: `Registered candidate: ${data.name} for Job Opening`,
-    },
+    // Create Application
+    const application = await tx.application.create({
+      data: {
+        jobId: data.jobId,
+        candidateId: cand.id,
+        status: data.status,
+      },
+    });
+
+    // Create initial Note if provided
+    if (data.initialNote) {
+      await tx.candidateNote.create({
+        data: {
+          applicationId: application.id,
+          userId: user.id,
+          content: data.initialNote,
+        },
+      });
+    }
+
+    // Log Activity
+    await tx.activityLog.create({
+      data: {
+        organizationId: organization.id,
+        userId: user.id,
+        action: "CANDIDATE_CREATED",
+        details: `Registered candidate: ${data.name} for Job Opening`,
+      },
+    });
+
+    return cand;
   });
 
   revalidatePath("/candidates");

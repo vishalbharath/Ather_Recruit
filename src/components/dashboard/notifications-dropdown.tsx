@@ -30,9 +30,26 @@ export function NotificationsDropdown() {
 
   useEffect(() => {
     fetchNotifications();
-    // Poll notifications every 30 seconds for simulated real-time updates
-    const interval = setInterval(fetchNotifications, 30000);
-    return () => clearInterval(interval);
+
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        fetchNotifications();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibility);
+
+    // Poll every 60 seconds and only when the window tab is active
+    const interval = setInterval(() => {
+      if (document.visibilityState === "visible") {
+        fetchNotifications();
+      }
+    }, 60000);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibility);
+      clearInterval(interval);
+    };
   }, []);
 
   // Close dropdown on click outside
