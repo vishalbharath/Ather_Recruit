@@ -41,14 +41,17 @@ export function Header({ organizationName }: HeaderProps) {
 
       {/* Right Area: Search, Notify, Theme, Profile */}
       <div className="flex items-center gap-4">
-        {/* Search input mock */}
-        <div className="relative hidden md:flex items-center w-64">
+        {/* Search input trigger */}
+        <div
+          onClick={() => window.dispatchEvent(new CustomEvent("open-global-search"))}
+          className="relative hidden md:flex items-center w-64 cursor-pointer"
+        >
           <Search className="absolute left-3 h-4 w-4 text-muted-foreground" />
           <input
             type="text"
+            readOnly
             placeholder="Search... (Cmd+K)"
-            disabled
-            className="w-full h-9 rounded-md border border-border/40 bg-zinc-900/10 dark:bg-zinc-800/10 pl-9 pr-4 text-xs text-foreground placeholder:text-muted-foreground outline-none cursor-not-allowed"
+            className="w-full h-9 rounded-md border border-border/40 bg-zinc-900/10 dark:bg-zinc-800/10 pl-9 pr-4 text-xs text-foreground placeholder:text-muted-foreground outline-none cursor-pointer"
           />
         </div>
 

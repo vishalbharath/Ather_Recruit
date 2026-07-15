@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { Header } from "@/components/dashboard/header";
+import { GlobalSearch } from "@/components/dashboard/global-search";
 
 interface DashboardShellProps {
   children: React.ReactNode;
@@ -38,6 +39,7 @@ export function DashboardShell({
           </div>
         </main>
       </div>
+      <GlobalSearch />
     </div>
   );
 }
