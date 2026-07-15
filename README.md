@@ -34,6 +34,17 @@ Aether is a state-of-the-art applicant tracking workspace designed for modern HR
 
 ---
 
+## 🏗️ Architecture
+
+Aether is designed with a modern, server-first, type-safe Next.js App Router architecture:
+
+- **Client Interaction & Motion**: Responsive Client Components using Tailwind CSS v4, Framer Motion for state animations, and Recharts for metrics canvas.
+- **Server Action Mutations**: RPC-style Next.js Server Actions (`"use server"`) validated via Zod, replacing REST/GraphQL API controllers.
+- **Multi-Tenant Scoping & Security**: Dynamic tenant isolation scoped via Clerk's active organization ID, verified in Server Actions before performing database queries.
+- **Database Layer**: Prisma Client ORM interacting with PostgreSQL with a global singleton pattern to prevent database pool exhaustion in dev.
+
+---
+
 ## 📂 Folder Structure
 
 ```bash
@@ -76,28 +87,43 @@ NEXT_PUBLIC_CLERK_SIGN_UP_URL="/sign-up"
 
 ---
 
-## ⚙️ Installation & Setup
+## ⚙️ Installation
 
-1. **Clone the project & install dependencies**:
+1. **Clone the repository** to your local machine.
+2. **Install package dependencies**:
    ```bash
    npm install
    ```
 
-2. **Generate the Prisma client types**:
+---
+
+## 🗄️ Database Setup
+
+1. **Generate the Prisma client types** dynamically based on `schema.prisma`:
    ```bash
    npx prisma generate
    ```
 
-3. **Synchronize database schema schemas**:
+2. **Synchronize database schemas** with your target PostgreSQL database instance:
    ```bash
    npx prisma db push
    ```
 
-4. **Boot the development workspace**:
+3. **Seed mock credentials/roles (Optional)**:
    ```bash
-   npm run dev
+   npx prisma db seed
    ```
-   Open [http://localhost:3000](http://localhost:3000) to view the application.
+
+---
+
+## 💻 Development
+
+Run the Next.js local development server:
+```bash
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 ---
 
