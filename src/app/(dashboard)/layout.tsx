@@ -1,33 +1,31 @@
-"use client";
-
 import * as React from "react";
-import { Sidebar } from "@/components/dashboard/sidebar";
-import { Header } from "@/components/dashboard/header";
+import { checkAndSyncUser } from "@/lib/auth-sync";
+import { redirect } from "next/navigation";
+import { DashboardShell } from "@/components/dashboard/shell";
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [collapsed, setCollapsed] = React.useState(false);
+  const sync = await checkAndSyncUser();
+  if (!sync || !sync.dbUser) {
+    redirect("/sign-in");
+  }
+
+  const { dbUser } = sync;
+  const activeOrg = dbUser.memberships[0]?.organization;
+  const organizationName = activeOrg ? activeOrg.name : "Personal Workspace";
+
+  const userPayload = {
+    name: dbUser.name,
+    email: dbUser.email,
+    avatarUrl: dbUser.avatarUrl,
+  };
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-background text-foreground">
-      {/* Sidebar navigation */}
-      <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
-
-      {/* Main workspace area */}
-      <div className="flex flex-1 flex-col overflow-hidden h-full">
-        {/* Top Header navbar */}
-        <Header />
-
-        {/* Scrollable page content */}
-        <main className="flex-1 overflow-y-auto bg-background p-6">
-          <div className="mx-auto max-w-7xl w-full h-full">
-            {children}
-          </div>
-        </main>
-      </div>
-    </div>
+    <DashboardShell user={userPayload} organizationName={organizationName}>
+      {children}
+    </DashboardShell>
   );
 }

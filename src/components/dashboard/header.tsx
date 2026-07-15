@@ -6,7 +6,11 @@ import { Bell, Search } from "lucide-react";
 import { ThemeToggle } from "./theme-toggle";
 import { usePathname } from "next/navigation";
 
-export function Header() {
+interface HeaderProps {
+  organizationName?: string;
+}
+
+export function Header({ organizationName }: HeaderProps) {
   const pathname = usePathname();
   
   // Create simple breadcrumb label from route
@@ -20,7 +24,15 @@ export function Header() {
   return (
     <header className="sticky top-0 z-10 flex h-16 w-full items-center justify-between border-b border-border/40 bg-background/80 px-6 backdrop-blur-md">
       {/* Left Area: Breadcrumbs / Title */}
-      <div className="flex items-center">
+      <div className="flex items-center gap-3">
+        {organizationName && (
+          <>
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider bg-zinc-900/10 dark:bg-zinc-800/20 border border-border/40 px-2 py-0.5 rounded-md">
+              {organizationName}
+            </span>
+            <span className="text-muted-foreground/30 text-xs font-light">/</span>
+          </>
+        )}
         <h1 className="text-sm font-medium text-foreground tracking-tight">
           {getBreadcrumbLabel()}
         </h1>
