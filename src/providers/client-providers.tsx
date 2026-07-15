@@ -3,6 +3,7 @@
 import { ThemeProvider } from "./theme-provider";
 import { QueryProvider } from "./query-provider";
 import type { ReactNode } from "react";
+import { Toaster } from "@/components/ui/toaster";
 
 export function ClientProviders({ children }: { children: ReactNode }) {
   return (
@@ -12,7 +13,10 @@ export function ClientProviders({ children }: { children: ReactNode }) {
       enableSystem
       disableTransitionOnChange
     >
-      <QueryProvider>{children}</QueryProvider>
+      <QueryProvider>
+        {children}
+        <Toaster />
+      </QueryProvider>
     </ThemeProvider>
   );
 }
