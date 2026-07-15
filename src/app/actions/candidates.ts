@@ -143,7 +143,11 @@ export async function deleteCandidateAction(id: string) {
   const workspace = await getActiveWorkspace();
   if (!workspace) throw new Error("Unauthorized");
 
-  const { user, organization } = workspace;
+  const { user, organization, role } = workspace;
+
+  if (role !== OrgRole.OWNER && role !== OrgRole.ADMIN) {
+    throw new Error("Only workspace Owners or Admins are authorized to permanently delete candidate records.");
+  }
 
   const candidate = await prisma.candidate.delete({
     where: { id },
