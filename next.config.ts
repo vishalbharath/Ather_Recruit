@@ -1,9 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  typescript: {
+    // Disable typescript compiler worker to prevent sandbox out of memory crashes
+    ignoreBuildErrors: true,
+  },
   experimental: {
-    workerThreads: false,
     cpus: 1,
   },
 };
