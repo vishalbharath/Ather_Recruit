@@ -2,9 +2,10 @@
 
 import * as React from "react";
 import { UserButton } from "@clerk/nextjs";
-import { Bell, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { ThemeToggle } from "./theme-toggle";
 import { usePathname } from "next/navigation";
+import { NotificationsDropdown } from "./notifications-dropdown";
 
 interface HeaderProps {
   organizationName?: string;
@@ -51,15 +52,8 @@ export function Header({ organizationName }: HeaderProps) {
           />
         </div>
 
-        {/* Notifications mock button */}
-        <button
-          className="relative inline-flex h-9 w-9 items-center justify-center rounded-md border border-border/40 bg-zinc-900/10 text-muted-foreground hover:bg-zinc-900/20 dark:hover:bg-zinc-800/40 hover:text-foreground transition-colors cursor-pointer"
-          aria-label="View notifications"
-        >
-          <Bell className="h-4 w-4" />
-          {/* Unread marker red dot */}
-          <span className="absolute top-2 right-2 flex h-2 w-2 rounded-full bg-destructive" />
-        </button>
+        {/* Real interactive Notifications Dropdown */}
+        <NotificationsDropdown />
 
         {/* Theme Selector Toggle */}
         <ThemeToggle />
