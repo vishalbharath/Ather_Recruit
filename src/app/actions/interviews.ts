@@ -52,7 +52,7 @@ export async function createInterviewAction(input: InterviewInput) {
         type: NotificationType.INTERVIEW_SCHEDULED,
         title: "New Interview Scheduled",
         message: `You have been assigned to: "${data.title}" with candidate ${app.candidate.name} on ${new Date(data.scheduledAt).toLocaleString()}`,
-        link: "/dashboard/interviews",
+        link: "/interviews",
       },
     });
   });
@@ -69,8 +69,8 @@ export async function createInterviewAction(input: InterviewInput) {
     },
   });
 
-  revalidatePath("/dashboard/interviews");
-  revalidatePath("/dashboard/overview");
+  revalidatePath("/interviews");
+  revalidatePath("/overview");
   return { success: true, interview };
 }
 
@@ -99,8 +99,8 @@ export async function updateInterviewStatusAction(id: string, status: InterviewS
     },
   });
 
-  revalidatePath("/dashboard/interviews");
-  revalidatePath("/dashboard/overview");
+  revalidatePath("/interviews");
+  revalidatePath("/overview");
   return { success: true, interview };
 }
 
@@ -128,7 +128,7 @@ export async function deleteInterviewAction(id: string) {
     },
   });
 
-  revalidatePath("/dashboard/interviews");
-  revalidatePath("/dashboard/overview");
+  revalidatePath("/interviews");
+  revalidatePath("/overview");
   return { success: true };
 }

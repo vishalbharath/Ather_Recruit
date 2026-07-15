@@ -26,7 +26,7 @@ export default function Home() {
             Sign In
           </Link>
           <Link
-            href="/dashboard/overview"
+            href="/overview"
             className="inline-flex h-9 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/95 transition-colors gap-2 cursor-pointer"
           >
             Dashboard <ArrowRight className="h-4 w-4" />
@@ -52,7 +52,7 @@ export default function Home() {
 
           <div className="flex flex-col sm:flex-row gap-4 items-center mt-4">
             <Link
-              href="/dashboard/overview"
+              href="/overview"
               className="inline-flex h-11 items-center justify-center rounded-lg bg-primary px-6 text-sm font-medium text-primary-foreground hover:bg-primary/95 transition-colors gap-2 cursor-pointer shadow-lg shadow-primary/20"
             >
               Launch Dashboard <ArrowRight className="h-4 w-4" />

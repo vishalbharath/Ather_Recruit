@@ -27,7 +27,7 @@ export async function updateProfileSettingsAction(input: ProfileSettingsInput) {
     },
   });
 
-  revalidatePath("/dashboard/settings");
+  revalidatePath("/settings");
   return { success: true };
 }
 
@@ -59,7 +59,7 @@ export async function updateOrganizationSettingsAction(input: OrgSettingsInput) 
     },
   });
 
-  revalidatePath("/dashboard/settings");
+  revalidatePath("/settings");
   return { success: true };
 }
 
@@ -82,6 +82,6 @@ export async function updateNotificationSettingsAction(input: NotificationPrefer
     },
   });
 
-  revalidatePath("/dashboard/settings");
+  revalidatePath("/settings");
   return { success: true };
 }

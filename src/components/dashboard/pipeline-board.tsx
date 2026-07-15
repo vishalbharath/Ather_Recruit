@@ -135,7 +135,7 @@ export function PipelineBoard({ job, initialApplications }: PipelineBoardProps) 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-border/40 pb-4 flex-shrink-0">
         <div className="space-y-1">
           <Link
-            href="/dashboard/jobs"
+            href="/jobs"
             className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors mb-2 cursor-pointer"
           >
             <ArrowLeft className="h-3.5 w-3.5" /> Back to job boards

@@ -22,12 +22,12 @@ interface SidebarProps {
 }
 
 const navItems = [
-  { name: "Overview", href: "/dashboard/overview", icon: LayoutGrid },
-  { name: "Jobs", href: "/dashboard/jobs", icon: Briefcase },
-  { name: "Candidates", href: "/dashboard/candidates", icon: Users },
-  { name: "Interviews", href: "/dashboard/interviews", icon: Calendar },
-  { name: "Analytics", href: "/dashboard/analytics", icon: TrendingUp },
-  { name: "Settings", href: "/dashboard/settings", icon: Settings },
+  { name: "Overview", href: "/overview", icon: LayoutGrid },
+  { name: "Jobs", href: "/jobs", icon: Briefcase },
+  { name: "Candidates", href: "/candidates", icon: Users },
+  { name: "Interviews", href: "/interviews", icon: Calendar },
+  { name: "Analytics", href: "/analytics", icon: TrendingUp },
+  { name: "Settings", href: "/settings", icon: Settings },
 ];
 
 export function Sidebar({ collapsed, setCollapsed }: SidebarProps) {

@@ -21,7 +21,7 @@ export async function requireRole(allowedRoles: OrgRole[]) {
   // OWNER has superuser clearance; check if user role matches allowed roles
   const isAllowed = allowedRoles.includes(role) || role === OrgRole.OWNER;
   if (!isAllowed) {
-    redirect("/dashboard/unauthorized");
+    redirect("/unauthorized");
   }
 
   return { user: dbUser, organization: activeMembership.organization, role };

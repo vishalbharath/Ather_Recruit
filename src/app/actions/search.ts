@@ -47,7 +47,7 @@ export async function globalSearchAction(query: string): Promise<SearchResults> 
     id: j.id,
     title: j.title,
     subtitle: `${j.department} • ${j.location}`,
-    link: `/dashboard/jobs/${j.id}`,
+    link: `/jobs/${j.id}`,
     type: "job",
   }));
 
@@ -68,7 +68,7 @@ export async function globalSearchAction(query: string): Promise<SearchResults> 
     id: c.id,
     title: c.name,
     subtitle: c.email,
-    link: `/dashboard/candidates`, // Opens directory where they can view details
+    link: `/candidates`, // Opens directory where they can view details
     type: "candidate",
   }));
 
@@ -97,7 +97,7 @@ export async function globalSearchAction(query: string): Promise<SearchResults> 
     id: i.id,
     title: i.title,
     subtitle: `Candidate: ${i.application.candidate.name} • ${new Date(i.scheduledAt).toLocaleDateString()}`,
-    link: `/dashboard/interviews`,
+    link: `/interviews`,
     type: "interview",
   }));
 

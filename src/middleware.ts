@@ -1,18 +1,23 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-const isProtectedRoute = createRouteMatcher(["/dashboard(.*)"]);
+// Protect everything except the public marketing home, sign-in and sign-up paths
+const isPublicRoute = createRouteMatcher([
+  "/",
+  "/sign-in(.*)",
+  "/sign-up(.*)",
+]);
 
 export default clerkMiddleware(async (auth, req) => {
-  if (isProtectedRoute(req)) {
+  if (!isPublicRoute(req)) {
     await auth.protect();
   }
 });
 
 export const config = {
   matcher: [
-    // Protect dashboard paths
-    "/dashboard/:path*",
-    // Protect API routes
-    "/api/:path*",
+    // Skip Next.js internals and all static files, unless found in search params
+    "/((?!_next|[^?]*\\.[\\w]+$|_next/image|favicon.ico).*)",
+    // Always run for API routes
+    "/(api|trpc)(.*)",
   ],
 };

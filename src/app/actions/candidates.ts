@@ -74,8 +74,8 @@ export async function createCandidateAction(input: CandidateInput) {
     },
   });
 
-  revalidatePath("/dashboard/candidates");
-  revalidatePath("/dashboard/overview");
+  revalidatePath("/candidates");
+  revalidatePath("/overview");
   return { success: true, candidate };
 }
 
@@ -135,7 +135,7 @@ export async function updateCandidateAction(id: string, input: CandidateInput) {
     },
   });
 
-  revalidatePath("/dashboard/candidates");
+  revalidatePath("/candidates");
   return { success: true };
 }
 
@@ -158,8 +158,8 @@ export async function deleteCandidateAction(id: string) {
     },
   });
 
-  revalidatePath("/dashboard/candidates");
-  revalidatePath("/dashboard/overview");
+  revalidatePath("/candidates");
+  revalidatePath("/overview");
   return { success: true };
 }
 
@@ -184,8 +184,8 @@ export async function updateApplicationStageAction(applicationId: string, status
     },
   });
 
-  revalidatePath("/dashboard/candidates");
-  revalidatePath("/dashboard/overview");
+  revalidatePath("/candidates");
+  revalidatePath("/overview");
   return { success: true, app };
 }
 
@@ -215,6 +215,6 @@ export async function addCandidateNoteAction(applicationId: string, content: str
     },
   });
 
-  revalidatePath("/dashboard/candidates");
+  revalidatePath("/candidates");
   return { success: true, note };
 }

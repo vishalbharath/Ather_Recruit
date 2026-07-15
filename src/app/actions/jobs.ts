@@ -46,7 +46,7 @@ export async function createJobAction(input: JobInput) {
     },
   });
 
-  revalidatePath("/dashboard/jobs");
+  revalidatePath("/jobs");
   return { success: true, job };
 }
 
@@ -87,7 +87,7 @@ export async function updateJobAction(id: string, input: JobInput) {
     },
   });
 
-  revalidatePath("/dashboard/jobs");
+  revalidatePath("/jobs");
   return { success: true, job };
 }
 
@@ -113,7 +113,7 @@ export async function deleteJobAction(id: string) {
     },
   });
 
-  revalidatePath("/dashboard/jobs");
+  revalidatePath("/jobs");
   return { success: true };
 }
 
@@ -140,6 +140,6 @@ export async function toggleJobStatusAction(id: string, status: JobStatus) {
     },
   });
 
-  revalidatePath("/dashboard/jobs");
+  revalidatePath("/jobs");
   return { success: true, job };
 }

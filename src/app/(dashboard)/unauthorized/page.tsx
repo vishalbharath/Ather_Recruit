@@ -16,7 +16,7 @@ export default function UnauthorizedPage() {
       </p>
 
       <Link
-        href="/dashboard/overview"
+        href="/overview"
         className="inline-flex h-9 items-center justify-center rounded-lg border border-border/40 bg-zinc-900/10 px-4 text-sm font-medium text-foreground hover:bg-zinc-900/20 dark:hover:bg-zinc-800/40 transition-colors gap-2 cursor-pointer"
       >
         <ArrowLeft className="h-4 w-4" /> Go back home
