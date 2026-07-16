@@ -1,15 +1,228 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
+model User {
+  id            String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  clerkId       String                 @unique
+  email         String                 @unique
+  name          String
+  avatarUrl     String?
+  metadata      Json?                  @default("{}")
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @updatedAt
+  activityLogs  ActivityLog[]
+  notes         CandidateNote[]
+  feedbacks     InterviewFeedback[]
+  interviews    InterviewInterviewer[]
+  jobsManaged   Job[]                  @relation("HiringManagerRelation")
+  jobsRecruited Job[]                  @relation("RecruiterRelation")
+  memberships   Membership[]
+  notifications Notification[]
 }
 
-// ==========================================
-// Enums
-// ==========================================
+model Organization {
+  id           String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name         String
+  slug         String        @unique
+  logoUrl      String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  activityLogs ActivityLog[]
+  candidates   Candidate[]
+  jobs         Job[]
+  memberships  Membership[]
+}
+
+model Membership {
+  id             String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId         String       @db.Uuid
+  organizationId String       @db.Uuid
+  role           OrgRole      @default(RECRUITER)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, organizationId])
+  @@index([organizationId])
+  @@index([userId])
+}
+
+model Job {
+  id              String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId  String        @db.Uuid
+  title           String
+  department      String
+  location        String
+  type            JobType       @default(FULL_TIME)
+  workMode        WorkMode      @default(REMOTE)
+  description     String
+  requirements    String
+  salaryMin       Int?
+  salaryMax       Int?
+  currency        String        @default("USD") @db.VarChar(3)
+  status          JobStatus     @default(DRAFT)
+  recruiterId     String        @db.Uuid
+  hiringManagerId String        @db.Uuid
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  applications    Application[]
+  hiringManager   User          @relation("HiringManagerRelation", fields: [hiringManagerId], references: [id])
+  organization    Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  recruiter       User          @relation("RecruiterRelation", fields: [recruiterId], references: [id])
+
+  @@index([organizationId])
+  @@index([recruiterId])
+  @@index([hiringManagerId])
+  @@index([status])
+}
+
+model Candidate {
+  id             String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String        @db.Uuid
+  name           String
+  email          String
+  phone          String?
+  resumeUrl      String
+  resumeKey      String?
+  portfolioUrl   String?
+  linkedinUrl    String?
+  metadata       Json?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  applications   Application[]
+  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, email])
+  @@index([organizationId])
+  @@index([email])
+}
+
+model Application {
+  id          String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  jobId       String            @db.Uuid
+  candidateId String            @db.Uuid
+  status      ApplicationStatus @default(APPLIED)
+  coverLetter String?
+  stepIndex   Int               @default(0)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  candidate   Candidate         @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  job         Job               @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  notes       CandidateNote[]
+  interviews  Interview[]
+
+  @@unique([jobId, candidateId])
+  @@index([jobId])
+  @@index([candidateId])
+  @@index([status])
+}
+
+model Interview {
+  id            String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  applicationId String                 @db.Uuid
+  title         String
+  scheduledAt   DateTime
+  duration      Int
+  type          InterviewType          @default(VIDEO)
+  status        InterviewStatus        @default(SCHEDULED)
+  videoLink     String?
+  meetingId     String?
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @updatedAt
+  application   Application            @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  feedbacks     InterviewFeedback[]
+  interviewers  InterviewInterviewer[]
+
+  @@index([applicationId])
+  @@index([scheduledAt])
+  @@index([status])
+}
+
+model InterviewInterviewer {
+  id          String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  interviewId String              @db.Uuid
+  userId      String              @db.Uuid
+  response    InterviewerResponse @default(PENDING)
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  interview   Interview           @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+  user        User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([interviewId, userId])
+  @@index([interviewId])
+  @@index([userId])
+}
+
+model InterviewFeedback {
+  id             String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  interviewId    String         @db.Uuid
+  interviewerId  String         @db.Uuid
+  rating         Int
+  recommendation Recommendation
+  feedback       String
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  interview      Interview      @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+  interviewer    User           @relation(fields: [interviewerId], references: [id], onDelete: Cascade)
+
+  @@unique([interviewId, interviewerId])
+  @@index([interviewId])
+  @@index([interviewerId])
+}
+
+model CandidateNote {
+  id            String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  applicationId String      @db.Uuid
+  userId        String      @db.Uuid
+  content       String
+  isPrivate     Boolean     @default(false)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([applicationId])
+  @@index([userId])
+}
+
+model ActivityLog {
+  id             String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String       @db.Uuid
+  userId         String       @db.Uuid
+  action         String
+  details        String
+  ipAddress      String?
+  userAgent      String?
+  createdAt      DateTime     @default(now())
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model Notification {
+  id        String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String           @db.Uuid
+  type      NotificationType @default(GENERAL)
+  title     String
+  message   String
+  link      String?
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([readAt])
+}
 
 enum OrgRole {
   OWNER
@@ -76,239 +289,4 @@ enum NotificationType {
   FEEDBACK_REQUIRED
   NEW_APPLICATION
   GENERAL
-}
-
-// ==========================================
-// Models
-// ==========================================
-
-model User {
-  id            String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  clerkId       String       @unique
-  email         String       @unique
-  name          String
-  avatarUrl     String?
-  metadata      Json?        @default("{}")
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
-
-  // Relations
-  memberships   Membership[]
-  interviews    InterviewInterviewer[]
-  feedbacks     InterviewFeedback[]
-  notes         CandidateNote[]
-  activityLogs  ActivityLog[]
-  notifications Notification[]
-  jobsRecruited Job[]        @relation("RecruiterRelation")
-  jobsManaged   Job[]        @relation("HiringManagerRelation")
-}
-
-model Organization {
-  id           String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name         String
-  slug         String        @unique
-  logoUrl      String?
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-
-  // Relations
-  memberships  Membership[]
-  jobs         Job[]
-  candidates   Candidate[]
-  activityLogs ActivityLog[]
-}
-
-model Membership {
-  id             String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId         String       @db.Uuid
-  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  organizationId String       @db.Uuid
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  role           OrgRole      @default(RECRUITER)
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-
-  @@unique([userId, organizationId])
-  @@index([organizationId])
-  @@index([userId])
-}
-
-model Job {
-  id              String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organizationId  String        @db.Uuid
-  organization    Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  title           String
-  department      String
-  location        String
-  type            JobType       @default(FULL_TIME)
-  workMode        WorkMode      @default(REMOTE)
-  description     String        @db.Text
-  requirements    String        @db.Text
-  salaryMin       Int?          // Stored in local currency base units
-  salaryMax       Int?          // Stored in local currency base units
-  currency        String        @default("USD") @db.VarChar(3)
-  status          JobStatus     @default(DRAFT)
-  
-  recruiterId     String        @db.Uuid
-  recruiter       User          @relation("RecruiterRelation", fields: [recruiterId], references: [id])
-  hiringManagerId String        @db.Uuid
-  hiringManager   User          @relation("HiringManagerRelation", fields: [hiringManagerId], references: [id])
-  
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-
-  // Relations
-  applications    Application[]
-
-  @@index([organizationId])
-  @@index([recruiterId])
-  @@index([hiringManagerId])
-  @@index([status])
-}
-
-model Candidate {
-  id             String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organizationId String        @db.Uuid
-  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  name           String
-  email          String
-  phone          String?
-  resumeUrl      String
-  resumeKey      String?       // Object storage unique key
-  portfolioUrl   String?
-  linkedinUrl    String?
-  metadata       Json?         // Custom metadata storage (tags, sourcing metadata)
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-
-  // Relations
-  applications   Application[]
-
-  @@unique([organizationId, email])
-  @@index([organizationId])
-  @@index([email])
-}
-
-model Application {
-  id          String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  jobId       String            @db.Uuid
-  job         Job               @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  candidateId String            @db.Uuid
-  candidate   Candidate         @relation(fields: [candidateId], references: [id], onDelete: Cascade)
-  status      ApplicationStatus @default(APPLIED)
-  coverLetter String?           @db.Text
-  stepIndex   Int               @default(0) // Order within the pipeline stage
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
-
-  // Relations
-  interviews  Interview[]
-  notes       CandidateNote[]
-
-  @@unique([jobId, candidateId])
-  @@index([jobId])
-  @@index([candidateId])
-  @@index([status])
-}
-
-model Interview {
-  id            String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  applicationId String                 @db.Uuid
-  application   Application            @relation(fields: [applicationId], references: [id], onDelete: Cascade)
-  title         String
-  scheduledAt   DateTime
-  duration      Int                    // Stored in minutes
-  type          InterviewType          @default(VIDEO)
-  status        InterviewStatus        @default(SCHEDULED)
-  videoLink     String?
-  meetingId     String?                // Dynamic integration link (Teams / Meet / Zoom)
-  createdAt     DateTime               @default(now())
-  updatedAt     DateTime               @updatedAt
-
-  // Relations
-  interviewers  InterviewInterviewer[]
-  feedbacks     InterviewFeedback[]
-
-  @@index([applicationId])
-  @@index([scheduledAt])
-  @@index([status])
-}
-
-model InterviewInterviewer {
-  id          String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  interviewId String              @db.Uuid
-  interview   Interview           @relation(fields: [interviewId], references: [id], onDelete: Cascade)
-  userId      String              @db.Uuid
-  user        User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  response    InterviewerResponse @default(PENDING)
-  createdAt   DateTime            @default(now())
-  updatedAt   DateTime            @updatedAt
-
-  @@unique([interviewId, userId])
-  @@index([interviewId])
-  @@index([userId])
-}
-
-model InterviewFeedback {
-  id             String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  interviewId    String         @db.Uuid
-  interview      Interview      @relation(fields: [interviewId], references: [id], onDelete: Cascade)
-  interviewerId  String         @db.Uuid
-  interviewer    User           @relation(fields: [interviewerId], references: [id], onDelete: Cascade)
-  rating         Int            // Score validation 1-5 inside application code
-  recommendation Recommendation
-  feedback       String         @db.Text
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
-
-  @@unique([interviewId, interviewerId])
-  @@index([interviewId])
-  @@index([interviewerId])
-}
-
-model CandidateNote {
-  id            String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  applicationId String      @db.Uuid
-  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
-  userId        String      @db.Uuid
-  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  content       String      @db.Text
-  isPrivate     Boolean     @default(false) // If true, only visible to recruiters/admins (hiding managers excluded)
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-
-  @@index([applicationId])
-  @@index([userId])
-}
-
-model ActivityLog {
-  id             String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organizationId String        @db.Uuid
-  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  userId         String        @db.Uuid
-  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  action         String        // ex: "CANDIDATE_STATUS_UPDATED", "INTERVIEW_CREATED"
-  details        String        @db.Text // Store details parameter payload
-  ipAddress      String?
-  userAgent      String?
-  createdAt      DateTime      @default(now())
-
-  @@index([organizationId])
-  @@index([userId])
-  @@index([createdAt])
-}
-
-model Notification {
-  id        String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId    String           @db.Uuid
-  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  type      NotificationType @default(GENERAL)
-  title     String
-  message   String
-  link      String?          // Redirection pathway (e.g. "/dashboard/jobs/...")
-  readAt    DateTime?        // Null value indicates unread state
-  createdAt DateTime         @default(now())
-
-  @@index([userId])
-  @@index([readAt])
 }
